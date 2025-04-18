@@ -1,0 +1,57 @@
+import os
+import requests
+import tkinter as tk
+from tkinter import messagebox
+
+# Папка для хранения файлов
+folder_name = "PyLaMc"
+base_url = "https://github.com/Cndndh/EaglyPyMe-launcher/releases/download/LauncherFiles/"
+versions = ["1.8.8.html", "1.5.2.html", "1.20.1.html"]
+
+# Проверка и создание папки
+if not os.path.exists(folder_name):
+    os.makedirs(folder_name)
+
+# Функция для загрузки файла
+def download_file(file_name):
+    url = base_url + file_name
+    response = requests.get(url)
+    with open(os.path.join(folder_name, file_name), 'wb') as f:
+        f.write(response.content)
+
+# Проверка наличия файлов и загрузка при необходимости
+for version in versions:
+    if not os.path.exists(os.path.join(folder_name, version)):
+        download_file(version)
+
+# Создание интерфейса
+def on_play(version):
+    os.system(f"start chrome --kiosk {os.path.join(folder_name, version)}")
+
+def show_loading():
+    loading_window = tk.Toplevel()
+    loading_window.title("Загрузка...")
+    loading_label = tk.Label(loading_window, text="Загрузка...")
+    loading_label.pack()
+    loading_window.update()
+
+    # Здесь можно добавить задержку для имитации загрузки
+    loading_window.after(2000, loading_window.destroy)
+
+def play_selected_version():
+    selected_version = version_var.get()
+    show_loading()
+    on_play(selected_version)
+
+root = tk.Tk()
+root.title("Выбор версии")
+
+version_var = tk.StringVar(value=versions[0])
+for version in versions:
+    rb = tk.Radiobutton(root, text=version, variable=version_var, value=version)
+    rb.pack(anchor=tk.W)
+
+play_button = tk.Button(root, text="Играть", command=play_selected_version)
+play_button.pack()
+
+root.mainloop()
